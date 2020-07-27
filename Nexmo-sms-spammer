@@ -1,0 +1,82 @@
+const Nexmo = require(`nexmo`)
+
+const connectSMS = new Nexmo({
+  apiKey: `INSERT HERE`,
+  apiSecret: `INSERT HERE`
+})
+
+let data = {
+  'num': [
+	{
+	'from': `ENTER_YOUR_OWN_NUMBER_HERE`,
+	'sms': `WRITE_SMS_HERE`
+	},
+	{
+    'from': `ENTER_YOUR_SECOND_NUMBER_HERE`,
+    'sms': `WRITE__OTHER_SMS_HERE`
+	},
+	]
+}
+
+let toNum = `12223334444`
+
+
+// wait before first message
+let baseTime = 5
+
+// set a random range for intervals
+let rangeTime = 0
+
+// repeat of each message
+let repeats = 1
+
+// set how many times to loop the entire set of messages
+let loopCount = 0
+
+
+
+// set count of messages ( don't change) + math
+let counter = 0
+let timer = Math.floor(Math.random() * rangeTime) + baseTime
+
+
+// code get's run to send
+const intervalId = setInterval(() => {
+  data.num.forEach(
+    (obj, i) => {
+
+      let msg = {
+        to: toNum,
+        from: obj.from,
+        text: obj.sms
+      }
+
+        connectSMS.message.sendSms(msg.from, msg.to, msg.text, (err, responseData) => {
+          if (err) {
+            console.log(err)
+          } else {
+            if (responseData.messages[ 0 ][ `status` ] === `0`) {
+              counter += 1
+              console.log(`Message ` + counter + ` sent successfully.`)
+            }
+            else
+            {
+              console.log(`Message failed with error: ${ responseData.messages[ 0 ][ `error-text` ] }`)
+            }
+          }
+        }
+      )
+
+  loopCount += 1
+
+    if (loopCount === repeats) {
+      console.log(`All Done`)
+      clearInterval(intervalId)
+    }
+
+    if (loopCount !== repeats) {
+      console.log(`Sending: ` + loopCount + `/` + repeats)
+      }
+    }
+  )
+}, timer * 1000)
